@@ -25,3 +25,7 @@ any username. Only the user which has the same name as this group should
 be a member of that group.
 This membership information must not be stored in the directory but be
 generated for group membershop queries.
+
+Obviously the storage schema allows to store membership loops. An compliant
+agent must be resilient against these situations and in case it detects a
+loop print a warning to it's log.
