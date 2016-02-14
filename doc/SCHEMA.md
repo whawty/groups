@@ -18,7 +18,9 @@ base directory:
         groupa.group  ; symlink to group directory
         fredl.user    ; symlink to user file in users directory
 
-Usernames must only contain the following characters: [-_.@A-Za-z0-9]
+User and Group names must only contain the following characters:
+
+     [-_.@A-Za-z0-9]
 
 A whawty.groups agent must be configurable to add an implicit group for
 any username. Only the user which has the same name as this group should
