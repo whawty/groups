@@ -90,7 +90,7 @@ func (u *UserFile) Add() (err error) {
 	return nil
 }
 
-// Remove deletes file file.
+// Remove deletes the user file.
 func (u *UserFile) Remove() {
 	os.Remove(u.getFilename())
 	return
