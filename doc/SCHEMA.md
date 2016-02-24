@@ -6,7 +6,7 @@ The directory structure looks like this (path names are relative to the
 base directory:
 
     users/
-      username        ; yaml(?) file which contains user meta data:
+      username        ; toml file which contains user meta data:
       nicoo           ;   firstname, lastname, mail, ....
       equinox         ;
       fredl           ;
