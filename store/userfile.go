@@ -34,6 +34,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
+
+	"github.com/pelletier/go-toml"
 )
 
 // fileExists returns whether the given file or directory exists or not
@@ -79,7 +82,11 @@ func (u *UserFile) Add() (err error) {
 	var file *os.File
 	file, err = os.Create(u.getFilename())
 	defer file.Close()
-	// TODO: write inital data to file ?!?
+
+	m := make(map[string]interface{})
+	m["changed"] = time.Now()
+	t := toml.TreeFromMap(m)
+	file.WriteString(t.ToString())
 	return nil
 }
 
