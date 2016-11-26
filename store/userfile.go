@@ -36,7 +36,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/pelletier/go-toml"
+	"gopkg.in/yaml.v2"
 )
 
 // fileExists returns whether the given file or directory exists or not
@@ -85,8 +85,11 @@ func (u *UserFile) Add() (err error) {
 
 	m := make(map[string]interface{})
 	m["changed"] = time.Now()
-	t := toml.TreeFromMap(m)
-	file.WriteString(t.ToString())
+	var data []byte
+	if data, err = yaml.Marshal(m); err != nil {
+		return
+	}
+	file.Write(data)
 	return nil
 }
 

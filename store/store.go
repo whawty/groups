@@ -48,8 +48,8 @@ var (
 )
 
 const (
-	userExt  string = ".user"
-	groupExt string = ".group"
+	userDir   string = "users"
+	groupsDir string = "groups"
 )
 
 func init() {
