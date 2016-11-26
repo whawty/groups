@@ -97,6 +97,89 @@ func TestInitDir(t *testing.T) {
 	}
 }
 
+func TestCheckDir(t *testing.T) {
+	store := NewDir(testBaseDir)
+
+	if err := store.Check(); err == nil {
+		t.Fatalf("check should return an error for not existing directory")
+	}
+
+	if file, err := os.Create(testBaseDir); err != nil {
+		t.Fatal("unexpected error:", err)
+	} else {
+		file.Close()
+	}
+
+	if err := store.Check(); err == nil {
+		t.Fatalf("check should return an error if path is not a directory")
+	}
+
+	if err := os.Remove(testBaseDir); err != nil {
+		t.Fatal("unexpected error:", err)
+	}
+	if err := os.Mkdir(testBaseDir, 0000); err != nil {
+		t.Fatal("unexpected error:", err)
+	}
+	defer os.RemoveAll(testBaseDir)
+
+	if err := store.Check(); err == nil {
+		t.Fatalf("check should return an error if directory is not accessable")
+	}
+
+	if err := os.Chmod(testBaseDir, 0755); err != nil {
+		t.Fatal("unexpected error:", err)
+	}
+
+	if err := store.Check(); err == nil {
+		t.Fatalf("check should return an error for an empty directory")
+	}
+
+	for _, name := range []string{usersDir, groupsDir} {
+		if file, err := os.Create(filepath.Join(testBaseDir, name)); err != nil {
+			t.Fatal("unexpected error:", err)
+		} else {
+			file.Close()
+		}
+	}
+	if err := store.Check(); err == nil {
+		t.Fatalf("check should fail if users or groups are not directories")
+	}
+
+	for _, name := range []string{usersDir, groupsDir} {
+		if err := os.Remove(filepath.Join(testBaseDir, name)); err != nil {
+			t.Fatal("unexpected error:", err)
+		}
+	}
+
+	if err := store.Init(); err != nil {
+		t.Fatalf("unexpected error")
+	}
+
+	if err := store.Check(); err != nil {
+		t.Fatalf("check should succeed for newly initialized directory: %v", err)
+	}
+
+	if err := os.Mkdir(filepath.Join(testBaseDir, tmpDir), 0755); err != nil {
+		t.Fatal("unexpected error:", err)
+	}
+
+	if err := store.Check(); err != nil {
+		t.Fatalf("check should succeed even if ther is a .tmp directory: %v", err)
+	}
+
+	if file, err := os.Create(filepath.Join(testBaseDir, "dummy")); err != nil {
+		t.Fatal("unexpected error:", err)
+	} else {
+		file.Close()
+	}
+
+	if err := store.Check(); err == nil {
+		t.Fatalf("check should fail when there are unkown files/directories")
+	}
+}
+
+// TODO: add tests for users and groups dirs
+
 func TestMain(m *testing.M) {
 	if err := os.Mkdir(testBaseDirUserFile, 0755); err != nil {
 		fmt.Println("Error creating store base directory:", err)

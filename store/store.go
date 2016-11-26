@@ -49,7 +49,8 @@ var (
 )
 
 const (
-	userDir   string = "users"
+	tmpDir    string = ".tmp"
+	usersDir  string = "users"
 	groupsDir string = "groups"
 )
 
@@ -97,6 +98,34 @@ func isDirEmpty(dir *os.File) bool {
 	return true
 }
 
+func isDir(path string) error {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+	if !fi.IsDir() {
+		return fmt.Errorf("Error: %s exists but is not a directory", path)
+	}
+	return nil
+}
+
+// getTempFile provides a new, empty file in the base's .tmp directory,
+//  suitable for atomic file updates (by create/write/rename)
+func (d *Dir) getTempFile() (tmp *os.File, err error) {
+	tmpDir := filepath.Join(d.basedir, tmpDir)
+	err = os.MkdirAll(tmpDir, 0700)
+	if err != nil {
+		return nil, err
+	}
+
+	tmp, err = ioutil.TempFile(tmpDir, "")
+	if err != nil {
+		return tmp, err
+	}
+
+	return tmp, nil
+}
+
 // Init initializes the store by creating directories for users and groups
 func (d *Dir) Init() error {
 	dir, err := openDir(d.basedir)
@@ -109,11 +138,54 @@ func (d *Dir) Init() error {
 		return fmt.Errorf("Error: '%s' is not empty", d.basedir)
 	}
 
-	if err = os.Mkdir(filepath.Join(d.basedir, userDir), 0700); err != nil {
+	if err = os.Mkdir(filepath.Join(d.basedir, usersDir), 0700); err != nil {
 		return err
 	}
 	if err = os.Mkdir(filepath.Join(d.basedir, groupsDir), 0700); err != nil {
 		return err
 	}
+	return nil
+}
+
+// Check tests if the directory is a valid whawty.group base directory.
+func (d *Dir) Check() (err error) {
+	dir, err := openDir(d.basedir)
+	if err != nil {
+		return err
+	}
+	defer dir.Close()
+
+	hasUsersDir := false
+	hasGroupsDir := false
+	names, err := dir.Readdirnames(0)
+	if err != nil {
+		return err
+	}
+	for _, name := range names {
+		switch name {
+		case tmpDir:
+		case usersDir:
+			hasUsersDir = true
+			if err = isDir(filepath.Join(d.basedir, name)); err != nil {
+				return err
+			}
+		case groupsDir:
+			hasGroupsDir = true
+			if err = isDir(filepath.Join(d.basedir, name)); err != nil {
+				return err
+			}
+		default:
+			return fmt.Errorf("Error: found invalid file or directory: %s", name)
+		}
+	}
+
+	if !hasGroupsDir {
+		return fmt.Errorf("Error: groups directory not found!")
+	}
+	if !hasUsersDir {
+		return fmt.Errorf("Error: users directory not found!")
+	}
+
+	// TODO: check usersdir and groups dir
 	return nil
 }
