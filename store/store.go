@@ -35,6 +35,7 @@
 package store
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -68,4 +69,51 @@ func NewDir(basedir string) (d *Dir) {
 	d = &Dir{}
 	d.basedir = filepath.Clean(basedir)
 	return
+}
+
+func openDir(path string) (*os.File, error) {
+	dir, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+
+	i, err := dir.Stat()
+	if err != nil {
+		dir.Close()
+		return nil, err
+	}
+	if !i.IsDir() {
+		dir.Close()
+		return nil, fmt.Errorf("Error: '%s' is not a directory", path)
+	}
+
+	return dir, nil
+}
+
+func isDirEmpty(dir *os.File) bool {
+	if _, err := dir.Readdir(1); err == nil {
+		return false
+	}
+	return true
+}
+
+// Init initializes the store by creating directories for users and groups
+func (d *Dir) Init() error {
+	dir, err := openDir(d.basedir)
+	if err != nil {
+		return err
+	}
+	defer dir.Close()
+
+	if empty := isDirEmpty(dir); !empty {
+		return fmt.Errorf("Error: '%s' is not empty", d.basedir)
+	}
+
+	if err = os.Mkdir(filepath.Join(d.basedir, userDir), 0700); err != nil {
+		return err
+	}
+	if err = os.Mkdir(filepath.Join(d.basedir, groupsDir), 0700); err != nil {
+		return err
+	}
+	return nil
 }
