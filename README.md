@@ -14,4 +14,4 @@ tba...
 
     3-clause BSD
 
-    © 2016 Christian Pointner <equinox@spreadspace.org>
+    © 2016 whawty contributors (see AUTHORS file)
