@@ -31,62 +31,59 @@
 package store
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
-	"time"
-
-	"gopkg.in/yaml.v2"
+	"testing"
 )
 
-// UserFile is the representation of a single user file inside the store.
-// Use NewUserFile to create it.
-type UserFile struct {
-	store *Dir
-	user  string
+func TestAddRemoveGroup(t *testing.T) {
+	groupname := "test-addremove-group"
+
+	u := NewGroupDir(testStoreGroupDir, groupname)
+
+	if err := u.Add(); err != nil {
+		t.Fatal("unexpected error:", err)
+	}
+	if fi, err := os.Stat(filepath.Join(testBaseDirGroupDir, groupsDir, groupname)); err != nil {
+		t.Fatal("cannot find test group dir after add:", err)
+	} else if !fi.IsDir() {
+		t.Fatal("group dir is not a directory")
+	}
+	if _, err := os.Stat(filepath.Join(testBaseDirGroupDir, groupsDir, groupname, groupMetaFile)); err != nil {
+		t.Fatal("cannot read test group's meta file after add:", err)
+	}
+
+	if err := u.Add(); err == nil {
+		t.Fatal("adding group a second time returned no error!")
+	}
+
+	u.Remove()
+	if _, err := os.Stat(filepath.Join(testBaseDirGroupDir, groupsDir, groupname)); err == nil {
+		t.Fatal("test group does still exist after remove")
+	} else if !os.IsNotExist(err) {
+		t.Fatal("unexpected error:", err)
+	}
 }
 
-// NewUserFile creates a new whawty.groups UserFile for user inside basedir.
-func NewUserFile(store *Dir, user string) (u *UserFile) {
-	u = &UserFile{}
-	u.store = store
-	u.user = user
-	return
-}
+func TestExistsGroup(t *testing.T) {
+	groupname := "test-exists-group"
 
-func (u *UserFile) getFilename() string {
-	return filepath.Join(u.store.basedir, usersDir, u.user)
-}
+	u := NewGroupDir(testStoreGroupDir, groupname)
 
-// Add creates the user file. It is an error if the user already exists.
-func (u *UserFile) Add() (err error) {
-	var exists bool
-	if exists, err = u.Exists(); err != nil {
-		return
+	if exists, err := u.Exists(); err != nil {
+		t.Fatal("unexpected error:", err)
 	} else if exists {
-		return fmt.Errorf("whawty.groups.store: user '%s' already exists", u.user)
+		t.Fatal("file file for test group shouldn't exist")
 	}
-	var file *os.File
-	file, err = os.Create(u.getFilename())
-	defer file.Close()
 
-	m := make(map[string]interface{})
-	m["changed"] = time.Now()
-	var data []byte
-	if data, err = yaml.Marshal(m); err != nil {
-		return
+	if err := u.Add(); err != nil {
+		t.Fatal("unexpected error:", err)
 	}
-	file.Write(data)
-	return nil
-}
+	defer u.Remove()
 
-// Remove deletes the user file.
-func (u *UserFile) Remove() {
-	os.Remove(u.getFilename())
-	return
-}
-
-// Exists checks if user exists.
-func (u *UserFile) Exists() (exists bool, err error) {
-	return fileExists(u.getFilename())
+	if exists, err := u.Exists(); err != nil {
+		t.Fatal("unexpected error:", err)
+	} else if !exists {
+		t.Fatal("file for test group should exist")
+	}
 }

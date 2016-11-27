@@ -40,10 +40,12 @@ import (
 const (
 	testBaseDir         string = "test-store"
 	testBaseDirUserFile string = "test-store-user"
+	testBaseDirGroupDir string = "test-store-group"
 )
 
 var (
 	testStoreUserFile *Dir
+	testStoreGroupDir *Dir
 )
 
 func TestInitDir(t *testing.T) {
@@ -178,7 +180,7 @@ func TestCheckDir(t *testing.T) {
 	}
 }
 
-// TODO: add tests for users and groups dirs
+// TODO: add tests for users and groups dirs checks
 
 func TestAddUser(t *testing.T) {
 	store := NewDir(testBaseDir)
@@ -218,18 +220,64 @@ func TestAddUser(t *testing.T) {
 	}
 }
 
+func TestAddGroup(t *testing.T) {
+	store := NewDir(testBaseDir)
+
+	if err := os.Mkdir(testBaseDir, 0755); err != nil {
+		t.Fatal("unexpected error:", err)
+	}
+	defer os.RemoveAll(testBaseDir)
+
+	if err := store.Init(); err != nil {
+		t.Fatalf("unexpected error")
+	}
+
+	users := []struct {
+		name  string
+		valid bool
+	}{
+		{"", false},
+		{"_", false},
+		{"hugo", true},
+		{"hugo%", false},
+		{"@hugo", false},
+		{"hugo@example.com", true},
+		{"my_Name", true},
+		{"WhyHasn'tAnybodyWrittenThisYet", false},
+		{"WhyHasn_tAnybodyWrittenThisY@", true},
+		{"hello_SPAMMERS@my-domain.net", true},
+	}
+
+	for _, u := range users {
+		err := store.AddGroup(u.name)
+		if u.valid && err != nil {
+			t.Fatalf("AddUser returned and unexpected error for '%s': %v", u.name, err)
+		} else if !u.valid && err == nil {
+			t.Fatalf("AddUser didn't return an error for ivalid user '%s'", u.name)
+		}
+	}
+}
+
 func TestMain(m *testing.M) {
 	if err := os.MkdirAll(filepath.Join(testBaseDirUserFile, usersDir), 0755); err != nil {
-		fmt.Println("Error creating store base directory:", err)
+		fmt.Println("Error creating store base directory for UserFile tests:", err)
+		os.Exit(-1)
+	}
+	if err := os.MkdirAll(filepath.Join(testBaseDirGroupDir, groupsDir), 0755); err != nil {
+		fmt.Println("Error creating store base directory for GroupDir tests:", err)
 		os.Exit(-1)
 	}
 
 	testStoreUserFile = NewDir(testBaseDirUserFile)
+	testStoreGroupDir = NewDir(testBaseDirGroupDir)
 
 	ret := m.Run()
 
 	if err := os.RemoveAll(testBaseDirUserFile); err != nil {
-		fmt.Println("Error removing store base directory:", err)
+		fmt.Println("Error removing store base directory for UserFile tests:", err)
+	}
+	if err := os.RemoveAll(testBaseDirGroupDir); err != nil {
+		fmt.Println("Error removing store base directory for GroupDir tests:", err)
 	}
 	os.Exit(ret)
 }

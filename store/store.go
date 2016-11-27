@@ -110,6 +110,19 @@ func isDir(path string) error {
 	return nil
 }
 
+// fileExists returns whether the given file or directory exists or not
+// this is from: stackoverflow.com/questions/10510691
+func fileExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
+}
+
 // getTempFile provides a new, empty file in the base's .tmp directory,
 //  suitable for atomic file updates (by create/write/rename)
 func (d *Dir) getTempFile() (tmp *os.File, err error) {
@@ -194,7 +207,7 @@ func (d *Dir) Check() (err error) {
 // AddUser adds user to the store. It is an error if the user already exists.
 func (d *Dir) AddUser(user string) (err error) {
 	if !nameRe.MatchString(user) {
-		return fmt.Errorf("username '%s' is invalid", user)
+		return fmt.Errorf("user name '%s' is invalid", user)
 	}
 	return NewUserFile(d, user).Add()
 }
@@ -202,4 +215,17 @@ func (d *Dir) AddUser(user string) (err error) {
 // RemoveUser removes user from the store.
 func (d *Dir) RemoveUser(user string) {
 	NewUserFile(d, user).Remove()
+}
+
+// AddGroup adds group to the store. It is an error if the group already exists.
+func (d *Dir) AddGroup(group string) (err error) {
+	if !nameRe.MatchString(group) {
+		return fmt.Errorf("group name '%s' is invalid", group)
+	}
+	return NewGroupDir(d, group).Add()
+}
+
+// RemoveGroup removes group from the store.
+func (d *Dir) RemoveGroup(group string) {
+	NewGroupDir(d, group).Remove()
 }

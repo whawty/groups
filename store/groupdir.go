@@ -39,35 +39,44 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// UserFile is the representation of a single user file inside the store.
-// Use NewUserFile to create it.
-type UserFile struct {
+// GroupDir is the representation of a single group directory inside the store.
+// Use NewGroupDir to create it.
+type GroupDir struct {
 	store *Dir
-	user  string
+	group string
 }
 
-// NewUserFile creates a new whawty.groups UserFile for user inside basedir.
-func NewUserFile(store *Dir, user string) (u *UserFile) {
-	u = &UserFile{}
-	u.store = store
-	u.user = user
+// NewGroupDir creates a new whawty.groups GroupDir for group inside basedir.
+func NewGroupDir(store *Dir, group string) (g *GroupDir) {
+	g = &GroupDir{}
+	g.store = store
+	g.group = group
 	return
 }
 
-func (u *UserFile) getFilename() string {
-	return filepath.Join(u.store.basedir, usersDir, u.user)
+func (g *GroupDir) getDirname() string {
+	return filepath.Join(g.store.basedir, groupsDir, g.group)
 }
 
-// Add creates the user file. It is an error if the user already exists.
-func (u *UserFile) Add() (err error) {
+func (g *GroupDir) getMetafilename() string {
+	return filepath.Join(g.store.basedir, groupsDir, g.group, groupMetaFile)
+}
+
+// Add creates the group directory. It is an error if the group already exists.
+func (g *GroupDir) Add() (err error) {
 	var exists bool
-	if exists, err = u.Exists(); err != nil {
+	if exists, err = g.Exists(); err != nil {
 		return
 	} else if exists {
-		return fmt.Errorf("whawty.groups.store: user '%s' already exists", u.user)
+		return fmt.Errorf("whawty.groups.store: group '%s' already exists", g.group)
 	}
+
+	if err = os.Mkdir(g.getDirname(), 0755); err != nil {
+		return
+	}
+
 	var file *os.File
-	file, err = os.Create(u.getFilename())
+	file, err = os.Create(g.getMetafilename())
 	defer file.Close()
 
 	m := make(map[string]interface{})
@@ -80,13 +89,13 @@ func (u *UserFile) Add() (err error) {
 	return nil
 }
 
-// Remove deletes the user file.
-func (u *UserFile) Remove() {
-	os.Remove(u.getFilename())
+// Remove deletes the group directory.
+func (g *GroupDir) Remove() {
+	os.RemoveAll(g.getDirname())
 	return
 }
 
-// Exists checks if user exists.
-func (u *UserFile) Exists() (exists bool, err error) {
-	return fileExists(u.getFilename())
+// Exists checks if group exists.
+func (g *GroupDir) Exists() (exists bool, err error) {
+	return fileExists(g.getDirname())
 }
