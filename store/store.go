@@ -49,9 +49,10 @@ var (
 )
 
 const (
-	tmpDir    string = ".tmp"
-	usersDir  string = "users"
-	groupsDir string = "groups"
+	tmpDir        string = ".tmp"
+	usersDir      string = "users"
+	groupsDir     string = "groups"
+	groupMetaFile string = "_meta.yaml"
 )
 
 func init() {
