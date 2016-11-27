@@ -1,5 +1,7 @@
 # whawty.groups
 
+[![Build Status](https://travis-ci.org/whawty/groups.svg?branch=master)](https://travis-ci.org/whawty/groups)
+
 simple file-based group membership store
 
 tba...
