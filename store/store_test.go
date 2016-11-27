@@ -180,8 +180,46 @@ func TestCheckDir(t *testing.T) {
 
 // TODO: add tests for users and groups dirs
 
+func TestAddUser(t *testing.T) {
+	store := NewDir(testBaseDir)
+
+	if err := os.Mkdir(testBaseDir, 0755); err != nil {
+		t.Fatal("unexpected error:", err)
+	}
+	defer os.RemoveAll(testBaseDir)
+
+	if err := store.Init(); err != nil {
+		t.Fatalf("unexpected error")
+	}
+
+	users := []struct {
+		name  string
+		valid bool
+	}{
+		{"", false},
+		{"_", false},
+		{"hugo", true},
+		{"hugo%", false},
+		{"@hugo", false},
+		{"hugo@example.com", true},
+		{"my_Name", true},
+		{"WhyHasn'tAnybodyWrittenThisYet", false},
+		{"WhyHasn_tAnybodyWrittenThisY@", true},
+		{"hello_SPAMMERS@my-domain.net", true},
+	}
+
+	for _, u := range users {
+		err := store.AddUser(u.name)
+		if u.valid && err != nil {
+			t.Fatalf("AddUser returned and unexpected error for '%s': %v", u.name, err)
+		} else if !u.valid && err == nil {
+			t.Fatalf("AddUser didn't return an error for ivalid user '%s'", u.name)
+		}
+	}
+}
+
 func TestMain(m *testing.M) {
-	if err := os.Mkdir(testBaseDirUserFile, 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(testBaseDirUserFile, usersDir), 0755); err != nil {
 		fmt.Println("Error creating store base directory:", err)
 		os.Exit(-1)
 	}

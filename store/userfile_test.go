@@ -44,7 +44,7 @@ func TestAddRemoveUser(t *testing.T) {
 	if err := u.Add(); err != nil {
 		t.Fatal("unexpected error:", err)
 	}
-	if _, err := os.Stat(filepath.Join(testBaseDirUserFile, username)); err != nil {
+	if _, err := os.Stat(filepath.Join(testBaseDirUserFile, usersDir, username)); err != nil {
 		t.Fatal("cannot read test user file after add:", err)
 	}
 
@@ -53,7 +53,7 @@ func TestAddRemoveUser(t *testing.T) {
 	}
 
 	u.Remove()
-	if _, err := os.Stat(filepath.Join(testBaseDirUserFile, username)); err == nil {
+	if _, err := os.Stat(filepath.Join(testBaseDirUserFile, usersDir, username)); err == nil {
 		t.Fatal("test user does still exist after remove")
 	} else if !os.IsNotExist(err) {
 		t.Fatal("unexpected error:", err)

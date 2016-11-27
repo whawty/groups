@@ -190,3 +190,16 @@ func (d *Dir) Check() (err error) {
 	// TODO: check usersdir and groups dir
 	return nil
 }
+
+// AddUser adds user to the store. It is an error if the user already exists.
+func (d *Dir) AddUser(user string) (err error) {
+	if !nameRe.MatchString(user) {
+		return fmt.Errorf("username '%s' is invalid", user)
+	}
+	return NewUserFile(d, user).Add()
+}
+
+// RemoveUser removes user from the store.
+func (d *Dir) RemoveUser(user string) {
+	NewUserFile(d, user).Remove()
+}

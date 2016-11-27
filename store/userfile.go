@@ -68,7 +68,7 @@ func NewUserFile(store *Dir, user string) (u *UserFile) {
 }
 
 func (u *UserFile) getFilename() string {
-	return filepath.Join(u.store.basedir, u.user)
+	return filepath.Join(u.store.basedir, usersDir, u.user)
 }
 
 // Add creates the user file. It is an error if the user already exists.
