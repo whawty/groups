@@ -1,0 +1,17 @@
+language: go
+go:
+  - 1.5
+  - 1.6
+  - 1.7
+
+sudo: False
+dist: trusty
+
+install:
+  - go get -v -t ./...
+script:
+  - go test -v ./store
+
+branches:
+  only:
+    - master
