@@ -45,7 +45,7 @@ import (
 
 var (
 	wl     = log.New(ioutil.Discard, "[whawty.groups]\t", log.LstdFlags)
-	nameRe = regexp.MustCompile("^[-_.@A-Za-z0-9]+$")
+	nameRe = regexp.MustCompile("^[A-Za-z0-9][-_.@A-Za-z0-9]*$")
 )
 
 const (
