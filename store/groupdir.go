@@ -99,3 +99,13 @@ func (g *GroupDir) Remove() {
 func (g *GroupDir) Exists() (exists bool, err error) {
 	return fileExists(g.getDirname())
 }
+
+// AddUserMember adds link to user file
+func (g *GroupDir) AddUserMember(user string) error {
+	return ErrNotImplemented
+}
+
+// AddGroupMember adds link to group dir
+func (g *GroupDir) AddGroupMember(group string) error {
+	return ErrNotImplemented
+}

@@ -35,6 +35,7 @@
 package store
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -46,6 +47,8 @@ import (
 var (
 	wl     = log.New(ioutil.Discard, "[whawty.groups]\t", log.LstdFlags)
 	nameRe = regexp.MustCompile("^[A-Za-z0-9][-_.@A-Za-z0-9]*$")
+
+	ErrNotImplemented = errors.New("not implemented yet")
 )
 
 const (
@@ -228,4 +231,28 @@ func (d *Dir) AddGroup(group string) (err error) {
 // RemoveGroup removes group from the store.
 func (d *Dir) RemoveGroup(group string) {
 	NewGroupDir(d, group).Remove()
+}
+
+// AddUserMember adds user to group
+func (d *Dir) AddUserMember(group, user string) error {
+	u := NewUserFile(d, user)
+	if exists, err := u.Exists(); err != nil {
+		return err
+	} else if !exists {
+		return fmt.Errorf("whawty.groups.store: user '%s' does not exist", user)
+	}
+
+	return NewGroupDir(d, group).AddUserMember(user)
+}
+
+// AddGroupMember adds groupToAdd to group
+func (d *Dir) AddGroupMember(group, groupToAdd string) error {
+	g := NewGroupDir(d, groupToAdd)
+	if exists, err := g.Exists(); err != nil {
+		return err
+	} else if !exists {
+		return fmt.Errorf("whawty.groups.store: group '%s' does not exist", groupToAdd)
+	}
+	// TODO: check for loops
+	return NewGroupDir(d, group).AddGroupMember(groupToAdd)
 }
