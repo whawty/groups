@@ -308,7 +308,7 @@ func TestRemoveGroup(t *testing.T) {
 	}
 }
 
-func TestAddUserMember(t *testing.T) {
+func TestAddRemoveUserMember(t *testing.T) {
 	store := NewDir(testBaseDir)
 	testGroup := "test-group"
 	testUser := "test-user"
@@ -334,13 +334,18 @@ func TestAddUserMember(t *testing.T) {
 		t.Fatal("unexpected error:", err)
 	}
 
-	// TODO: write testcases for this function
+	// TODO: write testcases for add function
 	if err := store.AddUserMember(testGroup, testUser); err != ErrNotImplemented {
+		t.Fatal("unexpected error:", err)
+	}
+
+	// TODO: write testcases for remove function
+	if err := store.RemoveUserMember(testGroup, testUser); err != ErrNotImplemented {
 		t.Fatal("unexpected error:", err)
 	}
 }
 
-func TestAddGroupMember(t *testing.T) {
+func TestAddRemoveGroupMember(t *testing.T) {
 	store := NewDir(testBaseDir)
 	testGroup := "test-group"
 	testGroup2 := "test-group2"
@@ -366,8 +371,13 @@ func TestAddGroupMember(t *testing.T) {
 		t.Fatal("unexpected error:", err)
 	}
 
-	// TODO: write testcases for this function
+	// TODO: write testcases for add function
 	if err := store.AddGroupMember(testGroup, testGroup2); err != ErrNotImplemented {
+		t.Fatal("unexpected error:", err)
+	}
+
+	// TODO: write testcases for remove function
+	if err := store.RemoveGroupMember(testGroup, testGroup2); err != ErrNotImplemented {
 		t.Fatal("unexpected error:", err)
 	}
 }

@@ -128,19 +128,13 @@ func fileExists(path string) (bool, error) {
 
 // getTempFile provides a new, empty file in the base's .tmp directory,
 //  suitable for atomic file updates (by create/write/rename)
-func (d *Dir) getTempFile() (tmp *os.File, err error) {
+func (d *Dir) getTempFile() (*os.File, error) {
 	tmpDir := filepath.Join(d.basedir, tmpDir)
-	err = os.MkdirAll(tmpDir, 0700)
-	if err != nil {
+	if err := os.MkdirAll(tmpDir, 0700); err != nil {
 		return nil, err
 	}
 
-	tmp, err = ioutil.TempFile(tmpDir, "")
-	if err != nil {
-		return tmp, err
-	}
-
-	return tmp, nil
+	return ioutil.TempFile(tmpDir, "")
 }
 
 // Init initializes the store by creating directories for users and groups
@@ -218,6 +212,7 @@ func (d *Dir) AddUser(user string) (err error) {
 // RemoveUser removes user from the store.
 func (d *Dir) RemoveUser(user string) {
 	NewUserFile(d, user).Remove()
+	// TODO: remove user from all groups it is a member of
 }
 
 // AddGroup adds group to the store. It is an error if the group already exists.
@@ -231,6 +226,7 @@ func (d *Dir) AddGroup(group string) (err error) {
 // RemoveGroup removes group from the store.
 func (d *Dir) RemoveGroup(group string) {
 	NewGroupDir(d, group).Remove()
+	// TODO: remove group from all groups it is a member of
 }
 
 // AddUserMember adds user to group. It is *not* an error if user is already
