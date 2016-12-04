@@ -105,7 +105,17 @@ func (g *GroupDir) AddUserMember(user string) error {
 	return ErrNotImplemented
 }
 
+// RemoveUserMember removes the link to user file
+func (g *GroupDir) RemoveUserMember(user string) error {
+	return ErrNotImplemented
+}
+
 // AddGroupMember adds link to group dir
 func (g *GroupDir) AddGroupMember(group string) error {
+	return ErrNotImplemented
+}
+
+// RemoveGroupMember removes the link to group dir
+func (g *GroupDir) RemoveGroupMember(group string) error {
 	return ErrNotImplemented
 }

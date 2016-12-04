@@ -233,7 +233,8 @@ func (d *Dir) RemoveGroup(group string) {
 	NewGroupDir(d, group).Remove()
 }
 
-// AddUserMember adds user to group
+// AddUserMember adds user to group. It is *not* an error if user is already
+// a member.
 func (d *Dir) AddUserMember(group, user string) error {
 	u := NewUserFile(d, user)
 	if exists, err := u.Exists(); err != nil {
@@ -245,7 +246,14 @@ func (d *Dir) AddUserMember(group, user string) error {
 	return NewGroupDir(d, group).AddUserMember(user)
 }
 
-// AddGroupMember adds groupToAdd to group
+// RemoveUserMember removes user from group. It is *not* an error if user
+// is not a member.
+func (d *Dir) RemoveUserMember(group, user string) error {
+	return NewGroupDir(d, group).RemoveUserMember(user)
+}
+
+// AddGroupMember adds groupToAdd to group. It is *not* an error if groupToAdd
+// is already a member.
 func (d *Dir) AddGroupMember(group, groupToAdd string) error {
 	g := NewGroupDir(d, groupToAdd)
 	if exists, err := g.Exists(); err != nil {
@@ -255,4 +263,10 @@ func (d *Dir) AddGroupMember(group, groupToAdd string) error {
 	}
 	// TODO: check for loops
 	return NewGroupDir(d, group).AddGroupMember(groupToAdd)
+}
+
+// RemoveGroupMember removes groupToRemove from group. It is *not* an error
+// if groupToRemove is not a member.
+func (d *Dir) RemoveGroupMember(group, groupToRemove string) error {
+	return NewGroupDir(d, group).RemoveGroupMember(groupToRemove)
 }
