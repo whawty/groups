@@ -220,6 +220,31 @@ func TestAddUser(t *testing.T) {
 	}
 }
 
+func TestRemoveUser(t *testing.T) {
+	store := NewDir(testBaseDir)
+	testUser := "test-user"
+
+	if err := os.Mkdir(testBaseDir, 0755); err != nil {
+		t.Fatal("unexpected error:", err)
+	}
+	defer os.RemoveAll(testBaseDir)
+
+	if err := store.Init(); err != nil {
+		t.Fatalf("unexpected error")
+	}
+
+	if err := store.AddUser(testUser); err != nil {
+		t.Fatalf("unexpected error")
+	}
+	store.RemoveUser(testUser)
+
+	if exists, err := fileExists(filepath.Join(testBaseDir, usersDir, testUser)); err != nil {
+		t.Fatalf("unexpected error")
+	} else if exists {
+		t.Fatalf("the userfile for '%s' should no longer exist", testUser)
+	}
+}
+
 func TestAddGroup(t *testing.T) {
 	store := NewDir(testBaseDir)
 
@@ -255,6 +280,31 @@ func TestAddGroup(t *testing.T) {
 		} else if !u.valid && err == nil {
 			t.Fatalf("AddUser didn't return an error for ivalid user '%s'", u.name)
 		}
+	}
+}
+
+func TestRemoveGroup(t *testing.T) {
+	store := NewDir(testBaseDir)
+	testGroup := "test-group"
+
+	if err := os.Mkdir(testBaseDir, 0755); err != nil {
+		t.Fatal("unexpected error:", err)
+	}
+	defer os.RemoveAll(testBaseDir)
+
+	if err := store.Init(); err != nil {
+		t.Fatalf("unexpected error")
+	}
+
+	if err := store.AddGroup(testGroup); err != nil {
+		t.Fatalf("unexpected error")
+	}
+	store.RemoveGroup(testGroup)
+
+	if exists, err := fileExists(filepath.Join(testBaseDir, groupsDir, testGroup)); err != nil {
+		t.Fatalf("unexpected error")
+	} else if exists {
+		t.Fatalf("the group directory for '%s' should no longer exist", testGroup)
 	}
 }
 
