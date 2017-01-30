@@ -4,14 +4,23 @@ go:
   - 1.6
   - 1.7
 
-sudo: False
+sudo: false
 dist: trusty
 
 install:
   - go get -v -t ./...
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/modocache/gover
+  - go get github.com/mattn/goveralls
+
 script:
-  - go test -v ./store
+  - go test -v ./store -covermode=count -coverprofile=./store/.coverprofile
+  - $HOME/gopath/bin/gover
+  - $HOME/gopath/bin/goveralls -coverprofile=gover.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
 
 branches:
   only:
     - master
+env:
+  global:
+    secure: TDPe5CyERdeiBMOP75BRca/VBMBOPa6DSCKP4m5N9LrtNFkbl2hs4vXeHwj7PNjgk0ltQ+l48Oni4JYqYIHVwSgOfLfD/sJCP8TNOj0i7j4IgQlscp6MlB5Q8jveFqdNjfUIkTA1yyEgv2bXrL7+pSU7+kYWo06/PWE0tTmhUFHcv/EY5eCkb3btTRDO4HiZMal2eH8boTwKLcmJVf7niL+Hks2Hy/P1Xac1aKEVa3GqSpXFAuQ3vTk+1DXQCmtlTCbn79aY87weBRuowDmWEf1xImCS4aIgsOmAKDHfKDKkHqUKMZjHHUR7cjkxLskkO1FCKn94QrF6a9VcUXdOFe2L9DSvBDwK8v2AS4HS6X53bbgDNTDE/Gn0amUzCwQwTI/L0dFTA9FThP3vdi7QHPbyjRREI0B/EORjPZkcQf+DxQmZ02/YwR8PPIFelygLDFPBCVJGTTHbVnUklckdOplndSGZsnKFvNjK1UqTm85r+iAxZ2iQjzV/lrjVMyMJSIKf3Vmv9Rsuq8FQ9G1Wp1MfCCc/zkCYj7yvNEAvALUXmtUZ93nNzdF3KLp+MIVjLDueH4W3VdIyjihTiTxiTTi+Wc6+4uL9k5FzYV2LaAZY4iNkBzx6JWcWWD0YJGQhxoQXDjJdkdHWuHZOI3OyN47wM30OfFNP2rLccR7VaAg=
