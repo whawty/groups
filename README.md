@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/whawty/groups.svg?branch=master)](https://travis-ci.org/whawty/groups)
 [![Coverage Status](https://coveralls.io/repos/github/whawty/groups/badge.svg?branch=master)](https://coveralls.io/github/whawty/groups?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/whawty/groups)](https://goreportcard.com/report/github.com/whawty/groups)
 
 simple file-based group membership store
 

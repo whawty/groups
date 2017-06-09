@@ -64,7 +64,7 @@ func init() {
 	}
 }
 
-// Dir represents a directoy containing a whawty.groups store. Use NewDir to create it.
+// Dir represents a directory containing a whawty.groups store. Use NewDir to create it.
 type Dir struct {
 	basedir string
 }

@@ -125,7 +125,7 @@ func TestCheckDir(t *testing.T) {
 	defer os.RemoveAll(testBaseDir)
 
 	if err := store.Check(); err == nil {
-		t.Fatalf("check should return an error if directory is not accessable")
+		t.Fatalf("check should return an error if directory is not accessible")
 	}
 
 	if err := os.Chmod(testBaseDir, 0755); err != nil {
@@ -166,7 +166,7 @@ func TestCheckDir(t *testing.T) {
 	}
 
 	if err := store.Check(); err != nil {
-		t.Fatalf("check should succeed even if ther is a .tmp directory: %v", err)
+		t.Fatalf("check should succeed even if there is a .tmp directory: %v", err)
 	}
 
 	if file, err := os.Create(filepath.Join(testBaseDir, "dummy")); err != nil {
@@ -176,7 +176,7 @@ func TestCheckDir(t *testing.T) {
 	}
 
 	if err := store.Check(); err == nil {
-		t.Fatalf("check should fail when there are unkown files/directories")
+		t.Fatalf("check should fail when there are unknown files/directories")
 	}
 }
 
